@@ -16,15 +16,17 @@
   },
   "keywords": [
     "example",
+    "kodeks",
+    "monitor",
     "plugin"
   ],
   "author": "apopov",
   "license": "ISC",
   "bugs": "popov@kodeks.ru",
   "contributors": "apopov",
-  "repository": "http://test",
+  "repository": "https://github.com/Murzilka/simple-monitor-plugin",
   "recommendations": "",
-  "homepage": "http://test",
+  "homepage": "https://github.com/Murzilka/simple-monitor-plugin",
   "dependencies": {},
   "engines": {
     "node": ">= 4.4.0"
