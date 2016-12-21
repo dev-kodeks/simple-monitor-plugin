@@ -2,7 +2,7 @@
   "name": "test-app",
   "description": "plugin for monitor",
   "main": "index.js",
-  "route": "/test/",
+  "route": "test",
   "process": {
     "type": "spawn"
     , "cmd": "nsh.exe"
