@@ -73,13 +73,14 @@ GET /arm/status?name=test
 Если пользователь прошёл аутентификацию в кодексе, ему записывается кука Auth, хранящая строку вида `userId:pswd` в base64 кодировке.
 В этом случае можно получить информацию о пользователе путём вызова метода UserInfo с передачей ему `userId` в качестве параметра.
 Метод возвращает `Promise`.
-'''
+
+```
 /**
  * @param {string} userId
  * @returns {Promise}
  */
 global.KodeksApi.UserInfo(userId).then(userinfo => {}).catch(error => {});
-'''
+```
 
 Состав объекта, возвращаемого в случае успешного вызова UserInfo:
 
@@ -95,8 +96,8 @@ global.KodeksApi.UserInfo(userId).then(userinfo => {}).catch(error => {});
 
 ## Примеры
 
-В папке [simple](https://github.com/Murzilka/monitor-plugin-sim/simple) лежит пример плагина.
-В папке [express](https://github.com/Murzilka/monitor-plugin-sim/express) лежит пример плагина, использующего [express.js](http://expressjs.com/)
+В папке [simple](https://github.com/Murzilka/simple-monitor-plugin/tree/master/simple) лежит пример плагина.
+В папке [express](https://github.com/Murzilka/simple-monitor-plugin/tree/master/express) лежит пример плагина, использующего [express.js](http://expressjs.com/)
 
 ## Ссылки
 
