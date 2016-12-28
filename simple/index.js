@@ -1,8 +1,9 @@
 'use strict';
 
-const inspect = require('util').inspect,
-	http = require('http'),
-	url = require('url');
+const inspect = require('util').inspect
+	, http = require('http')
+	, url = require('url')
+	;
 
 console.log('test plugin, index.js file executed');
 

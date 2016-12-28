@@ -1,16 +1,8 @@
 {
-  "name": "test-app",
-  "description": "plugin for monitor",
+  "name": "simple-test-app",
+  "description": "simple plugin for monitor",
   "main": "index.js",
   "route": "test",
-  "process": {
-    "type": "spawn"
-    , "cmd": "nsh.exe"
-    , "args": []
-    , "stdin": null
-    , "stdout": "stdout.txt"
-    , "stderr": "stderr.txt"
-  },
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
@@ -23,7 +15,7 @@
   "author": "apopov",
   "license": "ISC",
   "bugs": "popov@kodeks.ru",
-  "contributors": "apopov",
+  "contributors": "Murzilka",
   "repository": "https://github.com/Murzilka/simple-monitor-plugin",
   "recommendations": "",
   "homepage": "https://github.com/Murzilka/simple-monitor-plugin",
@@ -31,5 +23,5 @@
   "engines": {
     "node": ">= 4.4.0"
   },
-  "version": "0.0.1"
+  "version": "0.0.2"
 }
