@@ -95,8 +95,8 @@ global.KodeksApi.UserInfo(userId).then(userinfo => {}).catch(error => {});
 
 ## Примеры
 
-В папке simple лежит пример плагина.
-В папке express лежит пример плагина, использующего [express.js](http://expressjs.com/)
+В папке [simple](https://github.com/Murzilka/monitor-plugin-sim/simple) лежит пример плагина.
+В папке [express](https://github.com/Murzilka/monitor-plugin-sim/express) лежит пример плагина, использующего [express.js](http://expressjs.com/)
 
 ## Ссылки
 
