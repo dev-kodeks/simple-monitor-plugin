@@ -1,0 +1,32 @@
+{
+  "name": "simple-test-express-app",
+  "description": "simple plugin on express for monitor",
+  "main": "app.js",
+  "route": "testexpress",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "example",
+    "kodeks",
+    "monitor",
+    "plugin",
+    "express"
+  ],
+  "author": "apopov",
+  "license": "ISC",
+  "bugs": "popov@kodeks.ru",
+  "contributors": "Murzilka",
+  "repository": "https://github.com/Murzilka/simple-monitor-plugin",
+  "recommendations": "",
+  "homepage": "https://github.com/Murzilka/simple-monitor-plugin",
+  "dependencies": {
+    "body-parser": "^1.15.2",
+    "cookie-parser": "^1.4.3",
+    "express": "^4.14.0"
+  },
+  "engines": {
+    "node": ">= 4.4.0"
+  },
+  "version": "0.0.1"
+}
