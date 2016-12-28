@@ -5,15 +5,10 @@ const http = require('http')
 	, inspect = require('util').inspect
 	, express = require('express')
 	, app = express()
-	, bodyParser = require('body-parser')
 	, cookieParser = require('cookie-parser')
 	;
 
 app.use(cookieParser());
-app.use(bodyParser.json());
-app.use(bodyParser.urlencoded({ extended: true })); 
-app.use(bodyParser.json({ type: 'application/*+json' })); 
-app.use(bodyParser.text({ type: 'text/html' }));
 
 app.use(function (req, res, next) {
 	if (!req.cookies || !req.cookies.Auth) return next();
