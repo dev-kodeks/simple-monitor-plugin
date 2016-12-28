@@ -79,7 +79,9 @@ GET /arm/status?name=test
  * @param {string} userId
  * @returns {Promise}
  */
-global.KodeksApi.UserInfo(userId).then(userinfo => {}).catch(error => {});
+global.KodeksApi.UserInfo(userId)
+.then(userinfo => {})
+.catch(error => {})
 ```
 
 Состав объекта, возвращаемого в случае успешного вызова UserInfo:
@@ -96,8 +98,8 @@ global.KodeksApi.UserInfo(userId).then(userinfo => {}).catch(error => {});
 
 ## Примеры
 
-В папке [simple](https://github.com/Murzilka/simple-monitor-plugin/tree/master/simple) лежит пример плагина.
-В папке [express](https://github.com/Murzilka/simple-monitor-plugin/tree/master/express) лежит пример плагина, использующего [express.js](http://expressjs.com/)
+- [simple](https://github.com/Murzilka/simple-monitor-plugin/tree/master/simple) - пример простого плагина
+- [express](https://github.com/Murzilka/simple-monitor-plugin/tree/master/express) - пример плагина, использующего [express.js](http://expressjs.com/)
 
 ## Ссылки
 
