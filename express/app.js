@@ -11,7 +11,7 @@ app.use(cookieParser());
 
 app.use(function (req, res, next) {
 	if (!req.cookies) return next();
-	
+
 	let userId = null;
 	if (req.cookies.ClientUser) {
 		req.userId = req.cookies.ClientUser;
@@ -20,7 +20,7 @@ app.use(function (req, res, next) {
 	}
 	
 	if (!req.userId) return next();
-	
+
 	global.KodeksApi.UserInfo(req.userId)
 	.then(userInfo => {
 		try {
