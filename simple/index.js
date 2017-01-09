@@ -65,11 +65,10 @@ const server = http.createServer((req, res) => {
 			}
 			return finalHandler(req, res);
 		});
-	});
+	})
+	.on('error', e => console.error(`request error: ${e.toString()}`));
 })
-.on('error', (e) => {
-	console.error(`plugin ${global.KodeksApi.Name} error: ${e.toString()}`);
-});
+.on('error', e => console.error(`plugin ${global.KodeksApi.Name} error: ${e.toString()}`));
 
 server.listen(global.KodeksApi.SocketPath, function () {
 	console.log(`plugin ${global.KodeksApi.Name} opened server on ${server.address()}`);
