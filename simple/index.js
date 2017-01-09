@@ -26,6 +26,14 @@ function finalHandler(req, res) {
 	res.end();
 }
 
+function getUserId(cookie) {
+	let userId = null;
+	const obj = querystring.parse(cookie, '; ');
+	if (obj.ClientUser) userId = obj.ClientUser;
+	else if (obj.Auth) userId = new Buffer(obj.Auth, 'base64').toString('ascii').split(':')[0];
+	return userId;
+}
+
 const server = http.createServer((req, res) => {
 	console.log(`plugin ${global.KodeksApi.Name} , request`);
 
@@ -33,14 +41,10 @@ const server = http.createServer((req, res) => {
 	req.on('data', chunk => body.push(chunk))
 	.on('end', () => {
 		if (body) req.body = Buffer.concat(body).toString();
-
-		if (!req.headers.cookie) return finalHandler(req, res);
-	
-		const cookie = querystring.parse(req.headers.cookie, '; ');
-		let userId = null;
-		if (cookie.ClientUser) userId = cookie.ClientUser;
-		else if (cookie.Auth) userId = new Buffer(cookie.Auth, 'base64').toString('ascii').split(':')[0];
 		
+		if (!req.headers.cookie) return finalHandler(req, res);
+
+		const userId = getUserId(req.headers.cookie);
 		if (!userId) return finalHandler(req, res);
 
 		req.userId = userId;
@@ -62,7 +66,8 @@ const server = http.createServer((req, res) => {
 			return finalHandler(req, res);
 		});
 	});
-}).on('error', (e) => {
+})
+.on('error', (e) => {
 	console.error(`plugin ${global.KodeksApi.Name} error: ${e.toString()}`);
 });
 
