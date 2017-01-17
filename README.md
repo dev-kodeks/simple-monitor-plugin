@@ -56,7 +56,7 @@ GET /arm/status?name=test
 GET /arm/status?name=test
 ```
 
-В [репозитории monitor-plugin-sim](https://github.com/Murzilka/monitor-plugin-sim) представлен симулятор подсистемы плагинов монитора, отвечающий за маршрутизацию запросов-ответов между монитором и плагином.
+В [репозитории monitor-plugin-sim](https://github.com/monitor-plugin-sim/monitor-plugin-sim) представлен симулятор подсистемы плагинов монитора, отвечающий за маршрутизацию запросов-ответов между монитором и плагином.
 
 ## API
 
@@ -102,9 +102,9 @@ global.KodeksApi.UserInfo(userId)
 
 ## Примеры
 
-- [simple](https://github.com/Murzilka/simple-monitor-plugin/tree/master/simple) - пример простого плагина
-- [express](https://github.com/Murzilka/simple-monitor-plugin/tree/master/express) - пример плагина, использующего [express.js](http://expressjs.com/)
+- [simple](https://github.com/monitor-plugin-sim/simple-monitor-plugin/tree/master/simple) - пример простого плагина
+- [express](https://github.com/monitor-plugin-sim/simple-monitor-plugin/tree/master/express) - пример плагина, использующего [express.js](http://expressjs.com/)
 
 ## Ссылки
 
-- [симулятор подсистемы плагинов монитора](https://github.com/Murzilka/monitor-plugin-sim)
+- [симулятор подсистемы плагинов монитора](https://github.com/dev-kodeks/monitor-plugin-sim)
