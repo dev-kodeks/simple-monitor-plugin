@@ -2,15 +2,14 @@
 
 const http = require('http')
 	, url = require('url')
-	, querystring = require(('querystring'))
 	;
 
 const kPadding = 4;
 
 function finalHandler(req, res) {
-	res.writeHead(200, { 'Content-Type': 'Content-Type: text/html; charset=utf-8' });
+	res.writeHead(200, { 'Content-Type': 'text/html; charset=utf-8' });
 	res.write('<html><body>');
-	res.write(`<h1>Plugin ${global.KodeksApi.Name}</h1>`);
+	res.write(`<h1>Plugin ${global.KServerApi.Name}</h1>`);
 	res.write(`<h2>Request: ${req.method} ${url.format(req.url)}</h2>`);
 	res.write('<hr>');
 	res.write(`<h3>Request body: ${req.body}</h3>`);
@@ -18,44 +17,36 @@ function finalHandler(req, res) {
 	res.write(`<h3>User info:</h3>
 		<pre>${req.userInfo ? JSON.stringify(req.userInfo, null, kPadding) : 'no user id'}</pre>`);
 	res.write('<hr>');
+	res.write(`<h3>Check access:</h3>
+		<pre>${req.checkAccess ? JSON.stringify(req.checkAccess, null, kPadding) : 'some problem'}</pre>`);
+	res.write('<hr>');
+	res.write(`<h3>Kodeks doc info:</h3>
+		<pre>${req.kodeksDocInfo ? JSON.stringify(req.kodeksDocInfo, null, kPadding) : 'some problem'}</pre>`);
+	res.write('<hr>');
 	res.write(`<h3>Request headers:</h3><pre>${JSON.stringify(req.headers, null, kPadding)}</pre>`);
 	res.write('<hr>');
-	res.write(`<h3>KodeksApi:</h3><pre>${JSON.stringify(KodeksApi
+	res.write(`<h3>KServerApi:</h3><pre>${JSON.stringify(KServerApi
 		, (k, v) => (typeof v === 'function') ? 'FUNCTION' : v, kPadding)}</pre>`);
 	res.write('</body></html>');
 	res.end();
 }
 
-function getUserId(cookie) {
-	let userId = null;
-	const obj = querystring.parse(cookie, '; ');
-	if (obj.ClientUser) userId = obj.ClientUser;
-	else if (obj.Auth) userId = new Buffer(obj.Auth, 'base64').toString('ascii').split(':')[0];
-	return userId;
-}
-
 const server = http.createServer((req, res) => {
-	console.log(`plugin ${global.KodeksApi.Name} , request`);
+	console.log(`plugin ${global.KServerApi.Name} , request`);
 
 	let body = [];
 	req.on('data', chunk => body.push(chunk))
 	.on('end', () => {
 		if (body) req.body = Buffer.concat(body).toString();
 		
-		if (!req.headers.cookie) return finalHandler(req, res);
-
-		const userId = getUserId(req.headers.cookie);
-		if (!userId) return finalHandler(req, res);
-
-		req.userId = userId;
-		global.KodeksApi.UserInfo(req.userId)
+		// UserInfo 
+		global.KServerApi.UserInfo(req)	
 		.then(userInfo => {
 			try {
 				req.userInfo = JSON.parse(userInfo);
 			} catch (err) {
 				req.userInfo = { error: err.toString() };
 			}
-			return finalHandler(req, res);
 		})
 		.catch(error => {
 			try {
@@ -63,13 +54,55 @@ const server = http.createServer((req, res) => {
 			} catch (err) {
 				req.userInfo = error.toString();
 			}
+		})
+
+		// CheckAccess	
+		.then(() => {
+			return global.KServerApi.CheckAccess(4360, req);
+		})
+		.then(access => {
+			try {
+				req.checkAccess = JSON.parse(access);
+			} catch (err) {
+				req.checkAccess = { error: err.toString() };
+			}
+		})
+		.catch(error => {
+			try {
+				req.checkAccess = JSON.parse(error);
+			} catch (err) {
+				req.checkAccess = { error: error.toString() };
+			}
+		})
+
+		// KodeksDocInfo
+		.then(() => {
+			return global.KServerApi.KodeksDocInfo(9027690, req);
+		})
+		.then(access => {
+			try {
+				req.kodeksDocInfo = JSON.parse(access);
+			} catch (err) {
+				req.kodeksDocInfo = { error: err.toString() };
+			}
+		})
+		.catch(error => {
+			try {
+				req.kodeksDocInfo = JSON.parse(error);
+			} catch (err) {
+				req.kodeksDocInfo = { error: error.toString() };
+			}
+		})
+
+		// final
+		.then(() => {
 			return finalHandler(req, res);
 		});
 	})
 	.on('error', e => console.error(`request error: ${e.toString()}`));
 })
-.on('error', e => console.error(`plugin ${global.KodeksApi.Name} error: ${e.toString()}`));
+.on('error', e => console.error(`plugin ${global.KServerApi.Name} error: ${e.toString()}`));
 
-server.listen(global.KodeksApi.SocketPath, function () {
-	console.log(`plugin ${global.KodeksApi.Name} opened server on ${server.address()}`);
+server.listen(global.KServerApi.SocketPath, function () {
+	console.log(`plugin ${global.KServerApi.Name} opened server on ${server.address()}`);
 });
