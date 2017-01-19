@@ -204,8 +204,8 @@ app.get('<some_url>', (req, res, next) => {
 
 ## **Примеры**
 
-- [simple](https://github.com/simple-monitor-plugin/tree/master/simple) - пример простого плагина
-- [express](https://github.com/simple-monitor-plugin/tree/master/express) - пример плагина, использующего [express.js](http://expressjs.com/)
+- [simple](https://github.com/dev-kodeks/simple-monitor-plugin/tree/master/simple) - пример простого плагина
+- [express](https://github.com/dev-kodeks/simple-monitor-plugin/tree/master/express) - пример плагина, использующего [express.js](http://expressjs.com/)
 
 ## Ссылки
 
