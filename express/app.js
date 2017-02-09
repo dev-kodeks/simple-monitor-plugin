@@ -13,16 +13,29 @@ app.use(function (req, res, next) {
 		try {
 			req.userInfo = JSON.parse(userInfo);
 		} catch (err) {
-			req.userInfo = { error: err.toString() };
+			req.userInfo = err.toString();
 		}
 		return next();
 	})
 	.catch(error => {
+		req.userInfo = error.toString();
+		return next();
+	});
+});
+
+// UserList
+app.use(function (req, res, next) {
+	global.KServerApi.UserList(req)
+	.then(userList => {
 		try {
-			req.userInfo = JSON.parse(error);
+			req.userList = JSON.parse(userList);
 		} catch (err) {
-			req.userInfo = { error: error.toString() };
+			req.userList = err.toString();
 		}
+		return next();
+	})
+	.catch(error => {
+		req.userList = error.toString();
 		return next();
 	});
 });
@@ -34,16 +47,12 @@ app.use(function (req, res, next) {
 		try {
 			req.checkAccess = JSON.parse(access);
 		} catch (err) {
-			req.checkAccess = { error: err.toString() };
+			req.checkAccess = err.toString();
 		}
 		return next();
 	})
 	.catch(error => {
-		try {
-			req.checkAccess = JSON.parse(error);
-		} catch (err) {
-			req.checkAccess = { error: error.toString() };
-		}
+		req.checkAccess = error.toString();
 		return next();
 	});
 });
@@ -55,20 +64,49 @@ app.use(function (req, res, next) {
 		try {
 			req.kodeksDocInfo = JSON.parse(docInfo);
 		} catch (err) {
-			req.kodeksDocInfo = { error: err.toString() };
+			req.kodeksDocInfo = err.toString();
 		}
 		return next();
 	})
 	.catch(error => {
-		try {
-			req.kodeksDocInfo = JSON.parse(error);
-		} catch (err) {
-			req.kodeksDocInfo = { error: error.toString() };
-		}
+		req.kodeksDocInfo = error.toString();
 		return next();
 	});
 });
 
+// KodeksProductStatus
+app.use(function (req, res, next) {
+	global.KServerApi.KodeksProductStatus(777714430, req)
+	.then(productStatus => {
+		try {
+			req.kodeksProductStatus = JSON.parse(productStatus);
+		} catch (err) {
+			req.kodeksProductStatus = err.toString();
+		}
+		return next();
+	})
+	.catch(error => {
+		req.kodeksProductStatus = error.toString();
+		return next();
+	});
+});
+
+// NonExistingAPIMethod
+app.use(function (req, res, next) {
+	global.KServerApi.NonExistingAPIMethod()
+	.then(nonExistingAPIMethod => {
+		try {
+			req.nonExistingAPIMethod = JSON.parse(nonExistingAPIMethod);
+		} catch (err) {
+			req.nonExistingAPIMethod = err.toString();
+		}
+		return next();
+	})
+	.catch(error => {
+		req.nonExistingAPIMethod = error.toString();
+		return next();
+	});
+});
 
 const kPadding = 4;
 
@@ -83,11 +121,20 @@ app.all('*', function (req, res) {
 	str += `<h3>User info:</h3>
 		<pre>${req.userInfo ? JSON.stringify(req.userInfo, null, kPadding) : 'some problem'}</pre>`;
 	str += '<hr>';
+	str += `<h3>User list:</h3>
+		<pre>${req.userList ? JSON.stringify(req.userList, null, kPadding) : 'some problem'}</pre>`;
+	str += '<hr>';
 	str += `<h3>Check access:</h3>
 		<pre>${req.checkAccess ? JSON.stringify(req.checkAccess, null, kPadding) : 'some problem'}</pre>`;
 	str += '<hr>';
 	str += `<h3>Kodeks doc info:</h3>
 		<pre>${req.kodeksDocInfo ? JSON.stringify(req.kodeksDocInfo, null, kPadding) : 'some problem'}</pre>`;
+	str += '<hr>';
+	str += `<h3>Kodeks product status:</h3>
+		<pre>${req.kodeksProductStatus ? JSON.stringify(req.kodeksProductStatus, null, kPadding) : 'some problem'}</pre>`;
+	str += '<hr>';
+	str += `<h3>Non existing API method:</h3>
+		<pre>${req.nonExistingAPIMethod ? JSON.stringify(req.nonExistingAPIMethod, null, kPadding) : 'some problem'}</pre>`;
 	str += '<hr>';
 	str += `<h3>Request headers:</h3><pre>${JSON.stringify(req.headers, null, kPadding)}</pre>`;
 	str += '<hr>';

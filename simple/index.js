@@ -15,13 +15,22 @@ function finalHandler(req, res) {
 	res.write(`<h3>Request body: ${req.body}</h3>`);
 	res.write('<hr>');
 	res.write(`<h3>User info:</h3>
-		<pre>${req.userInfo ? JSON.stringify(req.userInfo, null, kPadding) : 'no user id'}</pre>`);
+		<pre>${req.userInfo ? JSON.stringify(req.userInfo, null, kPadding) : 'some problem'}</pre>`);
+	res.write('<hr>');
+	res.write(`<h3>User list:</h3>
+		<pre>${req.userList ? JSON.stringify(req.userList, null, kPadding) : 'some problem'}</pre>`);
 	res.write('<hr>');
 	res.write(`<h3>Check access:</h3>
 		<pre>${req.checkAccess ? JSON.stringify(req.checkAccess, null, kPadding) : 'some problem'}</pre>`);
 	res.write('<hr>');
 	res.write(`<h3>Kodeks doc info:</h3>
 		<pre>${req.kodeksDocInfo ? JSON.stringify(req.kodeksDocInfo, null, kPadding) : 'some problem'}</pre>`);
+	res.write('<hr>');
+	res.write(`<h3>Kodeks product status:</h3>
+		<pre>${req.kodeksProductStatus ? JSON.stringify(req.kodeksProductStatus, null, kPadding) : 'some problem'}</pre>`);
+	res.write('<hr>');
+	res.write(`<h3>Non existing API method:</h3>
+		<pre>${req.nonExistingAPIMethod ? JSON.stringify(req.nonExistingAPIMethod, null, kPadding) : 'some problem'}</pre>`);
 	res.write('<hr>');
 	res.write(`<h3>Request headers:</h3><pre>${JSON.stringify(req.headers, null, kPadding)}</pre>`);
 	res.write('<hr>');
@@ -38,25 +47,34 @@ const server = http.createServer((req, res) => {
 	req.on('data', chunk => body.push(chunk))
 	.on('end', () => {
 		if (body) req.body = Buffer.concat(body).toString();
-		
+
 		// UserInfo 
-		global.KServerApi.UserInfo(req)	
+		global.KServerApi.UserInfo(req)
 		.then(userInfo => {
 			try {
 				req.userInfo = JSON.parse(userInfo);
 			} catch (err) {
-				req.userInfo = { error: err.toString() };
+				req.userInfo = err.toString();
 			}
 		})
 		.catch(error => {
-			try {
-				req.userInfo = JSON.parse(error);
-			} catch (err) {
-				req.userInfo = error.toString();
-			}
+			req.userInfo = error.toString();
 		})
 
-		// CheckAccess	
+		// UserList 
+		global.KServerApi.UserList()
+		.then(userList => {
+			try {
+				req.userList = JSON.parse(userList);
+			} catch (err) {
+				req.userList = err.toString();
+			}
+		})
+		.catch(error => {
+			req.userInfo = error.toString();
+		})
+
+		// CheckAccess
 		.then(() => {
 			return global.KServerApi.CheckAccess(4360, req);
 		})
@@ -64,15 +82,11 @@ const server = http.createServer((req, res) => {
 			try {
 				req.checkAccess = JSON.parse(access);
 			} catch (err) {
-				req.checkAccess = { error: err.toString() };
+				req.checkAccess = err.toString();
 			}
 		})
 		.catch(error => {
-			try {
-				req.checkAccess = JSON.parse(error);
-			} catch (err) {
-				req.checkAccess = { error: error.toString() };
-			}
+			req.checkAccess = error.toString();
 		})
 
 		// KodeksDocInfo
@@ -87,11 +101,37 @@ const server = http.createServer((req, res) => {
 			}
 		})
 		.catch(error => {
+			req.kodeksDocInfo = error.toString();
+		})
+
+		// KodeksProductStatus
+		.then(() => {
+			return global.KServerApi.KodeksProductStatus(777714430, req);
+		})
+		.then(access => {
 			try {
-				req.kodeksDocInfo = JSON.parse(error);
+				req.kodeksProductStatus = JSON.parse(access);
 			} catch (err) {
-				req.kodeksDocInfo = { error: error.toString() };
+				req.kodeksProductStatus = err.toString();
 			}
+		})
+		.catch(error => {
+			req.kodeksProductStatus = error.toString();
+		})
+
+		// NonExistingAPIMethod
+		.then(() => {
+			return global.KServerApi.NonExistingAPIMethod();
+		})
+		.then(access => {
+			try {
+				req.nonExistingAPIMethod = JSON.parse(access);
+			} catch (err) {
+				req.nonExistingAPIMethod = err.toString();
+			}
+		})
+		.catch(error => {
+			req.nonExistingAPIMethod = error.toString();
 		})
 
 		// final

@@ -7,7 +7,7 @@
 * [Примеры](#Примеры)
 * [Ссылки](#Ссылки)
 
-## Описание (актуально для монитора версии 6.4.1.47)
+## Описание (актуально для монитора версии 6.4.1.57)
 
 Плагин должен быть полноценным модулем в формате npm, самостоятельно реализующим свои зависимости от других модулей.
 
@@ -125,6 +125,7 @@ app.get('<some_url>', (req, res) => {
 * `ip` ip адрес пользователя (IPv4 или IPv6)
 
 // если аутентифицирован
+* `id` идентификатор пользователя в базе сервера
 * `login` логин
 * `groups` массив объектов вида {id: <id>, name: <name>}, содержащих идентификаторы и названиям групп, в которые пользователь входит
 * `name` имя пользователя
@@ -144,6 +145,37 @@ app.get('<some_url>', (req, res) => {
  */
 global.KServerApi.UserInfo(session)
 .then(userinfo => {})
+.catch(error => {})
+```
+***
+
+#### **UserList(session)**
+
+* `session` идентификатор сессии пользователя (см. `pickKServerInfo`) или объект `request` (IncomingMessage)
+* Returns: \<Promise\>.
+
+Обработчику resolve (в случае успеха) передается массив объектов с информацией о пользователях (может быть пустым):
+
+* `id` идентификатор пользователя в базе сервера
+* `login` логин
+* `groups` массив объектов вида {id: <id>, name: <name>}, содержащих идентификаторы и названиям групп, в которые пользователь входит
+* `name` имя пользователя
+* `email`
+* `department` подразделение
+* `position` должность
+* `disabled` булево значение, содержащее статус блокировки учётной записи
+* `expired` булево значение, содержащее информацию об истечении срока действия учётной записи
+
+Обработчику reject (в случае неудачи) передается объект `Error` c описанием ошибки.
+
+Пример:
+```
+/**
+ * @param {string} session
+ * @returns {Promise}
+ */
+global.KServerApi.UserList(session)
+.then(userlist => {})
 .catch(error => {})
 ```
 ***
@@ -187,7 +219,7 @@ app.get('<some_url>', (req, res, next) => {
 #### **KodeksDocInfo(docNum[, session])**
 
 * `docNum` номер документа, информацию о котором требуется получить.
-* `session` идентификатор сессии пользователя (см. `pickKServerInfo`), или объект `request` (IncomingMessage), или `null`
+* `session` идентификатор сессии пользователя (см. `pickKServerInfo`), или объект `request` (IncomingMessage), или `undefined`
 * Returns: \<Promise\>.
 
 Обработчику resolve (в случае успеха) передается объект:
@@ -200,6 +232,22 @@ app.get('<some_url>', (req, res, next) => {
 Свойство `status` может принимать следующие значения:
    *'active', 'inactive', 'card_active', 'card_inactive', 'card_undefined', 'project', 'project inactive', 'situation', 'situation_inactive', 'themes', 'technicalDocument', 'technicalDocumentNew', 'book', 'bookmark', 'imp_news'*
 
+Обработчику reject (в случае неудачи) передается объект `Error` c описанием ошибки.
+
+***
+
+#### **KodeksProductStatus(productId[, session])**
+
+* `productId` идентификатор продукта.
+* `session` идентификатор сессии пользователя (см. `pickKServerInfo`), или объект `request` (IncomingMessage), или `undefined`
+* Returns: \<Promise\>.
+
+Обработчику resolve (в случае успеха) передается объект:
+```
+{
+  plugged: <Bolean>,  // флаг: продукт подключен/не подключен
+}
+```
 Обработчику reject (в случае неудачи) передается объект `Error` c описанием ошибки.
 
 ## **Примеры**
