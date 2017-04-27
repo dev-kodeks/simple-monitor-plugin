@@ -42,7 +42,7 @@ app.use(function (req, res, next) {
 
 // CheckAccess
 app.use(function (req, res, next) {
-	global.KServerApi.CheckAccess(4360, req)
+	global.KServerApi.CheckAccess(100005, req)
 	.then(access => {
 		try {
 			req.checkAccess = JSON.parse(access);
@@ -53,6 +53,25 @@ app.use(function (req, res, next) {
 	})
 	.catch(error => {
 		req.checkAccess = error.toString();
+		return next();
+	});
+});
+
+// PickPermissions
+app.use(function (req, res, next) {
+	global.KServerApi.PickPermissions([
+			[555100000, 0], ['555100000', '1'], 555100001, '555100002'
+		],	req)
+	.then(access => {
+		try {
+			req.pickPermissions = JSON.parse(access);
+		} catch (err) {
+			req.pickPermissions = err.toString();
+		}
+		return next();
+	})
+	.catch(error => {
+		req.pickPermissions = error.toString();
 		return next();
 	});
 });
@@ -76,7 +95,7 @@ app.use(function (req, res, next) {
 
 // KodeksProductStatus
 app.use(function (req, res, next) {
-	global.KServerApi.KodeksProductStatus(777714430, req)
+	global.KServerApi.KodeksProductStatus(10913, req)
 	.then(productStatus => {
 		try {
 			req.kodeksProductStatus = JSON.parse(productStatus);
@@ -126,6 +145,9 @@ app.all('*', function (req, res) {
 	str += '<hr>';
 	str += `<h3>Check access:</h3>
 		<pre>${req.checkAccess ? JSON.stringify(req.checkAccess, null, kPadding) : 'some problem'}</pre>`;
+	str += '<hr>';
+	str += `<h3>Pick permissions:</h3>
+		<pre>${req.checkAccess ? JSON.stringify(req.pickPermissions, null, kPadding) : 'some problem'}</pre>`;
 	str += '<hr>';
 	str += `<h3>Kodeks doc info:</h3>
 		<pre>${req.kodeksDocInfo ? JSON.stringify(req.kodeksDocInfo, null, kPadding) : 'some problem'}</pre>`;

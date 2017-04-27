@@ -23,6 +23,9 @@ function finalHandler(req, res) {
 	res.write(`<h3>Check access:</h3>
 		<pre>${req.checkAccess ? JSON.stringify(req.checkAccess, null, kPadding) : 'some problem'}</pre>`);
 	res.write('<hr>');
+	res.write(`<h3>Pick permissions:</h3>
+		<pre>${req.pickPermissions ? JSON.stringify(req.pickPermissions, null, kPadding) : 'some problem'}</pre>`);
+	res.write('<hr>');
 	res.write(`<h3>Kodeks doc info:</h3>
 		<pre>${req.kodeksDocInfo ? JSON.stringify(req.kodeksDocInfo, null, kPadding) : 'some problem'}</pre>`);
 	res.write('<hr>');
@@ -89,6 +92,23 @@ const server = http.createServer((req, res) => {
 			req.checkAccess = error.toString();
 		})
 
+		// PickPermissions
+		.then(() => {
+			return global.KServerApi.PickPermissions([
+				[555100000, 0], ['555100000', '1'], 555100001, '555100002'
+			], req);
+		})
+		.then(access => {
+			try {
+				req.pickPermissions = JSON.parse(access);
+			} catch (err) {
+				req.pickPermissions = err.toString();
+			}
+		})
+		.catch(error => {
+			req.pickPermissions = error.toString();
+		})
+
 		// KodeksDocInfo
 		.then(() => {
 			return global.KServerApi.KodeksDocInfo(9027690, req);
@@ -106,7 +126,7 @@ const server = http.createServer((req, res) => {
 
 		// KodeksProductStatus
 		.then(() => {
-			return global.KServerApi.KodeksProductStatus(777714430, req);
+			return global.KServerApi.KodeksProductStatus(10913, req);
 		})
 		.then(access => {
 			try {
