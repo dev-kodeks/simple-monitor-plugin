@@ -6,6 +6,8 @@ const http = require('http')
 	, app = express()
 	;
 
+let sendMailEnabled = false;
+
 // UserInfo
 app.use(function (req, res, next) {
 	global.KServerApi.UserInfo(req)
@@ -110,6 +112,32 @@ app.use(function (req, res, next) {
 	});
 });
 
+// SendMail
+/* uncomment this block to enable the test *//*
+sendMailEnabled = true;
+app.use(function (req, res, next) {
+	global.KServerApi.SendMail(
+		'garry@kodeks.ru' // to
+		, 'тестовое письмо (plugins API)' // subj
+		, `Тестовое письмо:\n  plugin: ${global.KServerApi.Name} on ${global.KServerApi.SocketPath}` // body
+		//, '' // cc
+		//, [] // attachment
+	)
+	.then(result => {
+		try {
+			req.sendMail = result;
+		} catch (err) {
+			req.sendMail = err.toString();
+		}
+		return next();
+	})
+	.catch(error => {
+		req.sendMail = error.toString();
+		return next();
+	});
+});
+/**///*
+
 // NonExistingAPIMethod
 app.use(function (req, res, next) {
 	global.KServerApi.NonExistingAPIMethod()
@@ -134,34 +162,51 @@ app.all('*', function (req, res) {
 	res.type('html');
 	res.status(200);
 	let str = '<html><body>';
+
 	str += `<h1>Plugin ${global.KServerApi.Name}</h1>`;
 	str += `<h2>${req.method} ${url.format(req.url)}</h2>`;
+
 	str += '<hr>';
 	str += `<h3>User info:</h3>
 		<pre>${req.userInfo ? JSON.stringify(req.userInfo, null, kPadding) : 'some problem'}</pre>`;
+
 	str += '<hr>';
 	str += `<h3>User list:</h3>
 		<pre>${req.userList ? JSON.stringify(req.userList, null, kPadding) : 'some problem'}</pre>`;
+
 	str += '<hr>';
 	str += `<h3>Check access:</h3>
 		<pre>${req.checkAccess ? JSON.stringify(req.checkAccess, null, kPadding) : 'some problem'}</pre>`;
+
 	str += '<hr>';
 	str += `<h3>Pick permissions:</h3>
 		<pre>${req.checkAccess ? JSON.stringify(req.pickPermissions, null, kPadding) : 'some problem'}</pre>`;
+
 	str += '<hr>';
 	str += `<h3>Kodeks doc info:</h3>
 		<pre>${req.kodeksDocInfo ? JSON.stringify(req.kodeksDocInfo, null, kPadding) : 'some problem'}</pre>`;
+
 	str += '<hr>';
 	str += `<h3>Kodeks product status:</h3>
 		<pre>${req.kodeksProductStatus ? JSON.stringify(req.kodeksProductStatus, null, kPadding) : 'some problem'}</pre>`;
+
+	if (sendMailEnabled) {
+		str += '<hr>';
+		str += `<h3>Send mail:</h3>
+			<pre>${req.sendMail ? JSON.stringify(req.sendMail, null, kPadding) : 'some problem'}</pre>`;
+	}
+
 	str += '<hr>';
 	str += `<h3>Non existing API method:</h3>
 		<pre>${req.nonExistingAPIMethod ? JSON.stringify(req.nonExistingAPIMethod, null, kPadding) : 'some problem'}</pre>`;
+
 	str += '<hr>';
 	str += `<h3>Request headers:</h3><pre>${JSON.stringify(req.headers, null, kPadding)}</pre>`;
+
 	str += '<hr>';
 	str += `<h3>KServerApi:</h3><pre>${JSON.stringify(KServerApi
 		, (k, v) => (typeof v === 'function') ? 'FUNCTION' : v, kPadding)}</pre>`;
+
 	str += '</body></html>';
 	res.send(str);
 });

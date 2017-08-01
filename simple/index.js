@@ -6,39 +6,58 @@ const http = require('http')
 
 const kPadding = 4;
 
+let sendMailEnabled = false;
+
 function finalHandler(req, res) {
 	res.writeHead(200, { 'Content-Type': 'text/html; charset=utf-8' });
 	res.write('<html><body>');
 	res.write(`<h1>Plugin ${global.KServerApi.Name}</h1>`);
 	res.write(`<h2>Request: ${req.method} ${url.format(req.url)}</h2>`);
+
 	res.write('<hr>');
 	res.write(`<h3>Request body: ${req.body}</h3>`);
+
 	res.write('<hr>');
 	res.write(`<h3>User info:</h3>
 		<pre>${req.userInfo ? JSON.stringify(req.userInfo, null, kPadding) : 'some problem'}</pre>`);
+
 	res.write('<hr>');
 	res.write(`<h3>User list:</h3>
 		<pre>${req.userList ? JSON.stringify(req.userList, null, kPadding) : 'some problem'}</pre>`);
+
 	res.write('<hr>');
 	res.write(`<h3>Check access:</h3>
 		<pre>${req.checkAccess ? JSON.stringify(req.checkAccess, null, kPadding) : 'some problem'}</pre>`);
+
 	res.write('<hr>');
 	res.write(`<h3>Pick permissions:</h3>
 		<pre>${req.pickPermissions ? JSON.stringify(req.pickPermissions, null, kPadding) : 'some problem'}</pre>`);
+
 	res.write('<hr>');
 	res.write(`<h3>Kodeks doc info:</h3>
 		<pre>${req.kodeksDocInfo ? JSON.stringify(req.kodeksDocInfo, null, kPadding) : 'some problem'}</pre>`);
+
 	res.write('<hr>');
 	res.write(`<h3>Kodeks product status:</h3>
 		<pre>${req.kodeksProductStatus ? JSON.stringify(req.kodeksProductStatus, null, kPadding) : 'some problem'}</pre>`);
+
+	if (sendMailEnabled) {
+		res.write('<hr>');
+		res.write(`<h3>Send mail:</h3>
+			<pre>${req.sendMail ? JSON.stringify(req.sendMail, null, kPadding) : 'some problem'}</pre>`);
+	}
+
 	res.write('<hr>');
 	res.write(`<h3>Non existing API method:</h3>
 		<pre>${req.nonExistingAPIMethod ? JSON.stringify(req.nonExistingAPIMethod, null, kPadding) : 'some problem'}</pre>`);
+
 	res.write('<hr>');
 	res.write(`<h3>Request headers:</h3><pre>${JSON.stringify(req.headers, null, kPadding)}</pre>`);
+
 	res.write('<hr>');
 	res.write(`<h3>KServerApi:</h3><pre>${JSON.stringify(KServerApi
 		, (k, v) => (typeof v === 'function') ? 'FUNCTION' : v, kPadding)}</pre>`);
+
 	res.write('</body></html>');
 	res.end();
 }
@@ -128,9 +147,9 @@ const server = http.createServer((req, res) => {
 		.then(() => {
 			return global.KServerApi.KodeksProductStatus(10913, req);
 		})
-		.then(access => {
+		.then(status => {
 			try {
-				req.kodeksProductStatus = JSON.parse(access);
+				req.kodeksProductStatus = JSON.parse(status);
 			} catch (err) {
 				req.kodeksProductStatus = err.toString();
 			}
@@ -138,6 +157,30 @@ const server = http.createServer((req, res) => {
 		.catch(error => {
 			req.kodeksProductStatus = error.toString();
 		})
+
+		// SendMail
+		/* uncomment this block to enable the test *//*
+		.then(() => {
+			sendMailEnabled = true;
+			return global.KServerApi.SendMail(
+				'garry@kodeks.ru' // to
+				, 'тестовое письмо (plugins API)' // subj
+				, `Тестовое письмо:\n  plugin: ${global.KServerApi.Name} on ${server.address()}` // body
+				//, '' // cc
+				//, [] // attachment
+			);
+		})
+		.then(result => {
+			try {
+				req.sendMail = result;
+			} catch (err) {
+				req.sendMail = err.toString();
+			}
+		})
+		.catch(error => {
+			req.sendMail = error.toString();
+		})
+		/**///*
 
 		// NonExistingAPIMethod
 		.then(() => {
