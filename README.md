@@ -122,13 +122,13 @@ app.get('<some_url>', (req, res) => {
 
 ### Методы
 
-[UserInfo](#UserInfo) - метод для получения информации о пользователе<br>
-[UserList](#UserList) - метод для получения информации о пользователях<br>
-[CheckAccess](#CheckAccess) - метод для проверки доступа к функционалу<br>
-[PickPermissions](#PickPermissions) - метод для проверки доступа к функционалам<br>
-[KodeksDocInfo](#KodeksDocInfo) - метод для получения информации о документе ИС "Кодекс/Техэксперт"<br>
-[KodeksProductStatus](#KodeksProductStatus) - метод для получения статуса продукта ИС "Кодекс/Техэксперт"<br>
-[SendMail](#SendMail) - метод для отправки почтового сообщения<br>
+[UserInfo](#userinfosession) - метод для получения информации о пользователе<br>
+[UserList](#userlistsession) - метод для получения информации о пользователях<br>
+[CheckAccess](#checkaccessfeatureid-session) - метод для проверки доступа к функционалу<br>
+[PickPermissions](#pickpermissionsfeaturesids-session) - метод для проверки доступа к функционалам<br>
+[KodeksDocInfo](#kodeksdocinfodocnum-session) - метод для получения информации о документе ИС "Кодекс/Техэксперт"<br>
+[KodeksProductStatus](#kodeksproductstatusproductid-session) - метод для получения статуса продукта ИС "Кодекс/Техэксперт"<br>
+[SendMail](#sendmailto-subj-body-cc-attachment) - метод для отправки почтового сообщения<br>
 
 #### **UserInfo(session)**
 
