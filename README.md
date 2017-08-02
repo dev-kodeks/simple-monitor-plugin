@@ -3,7 +3,7 @@
 * [Описание](#Описание)
 * [package.json](#packagejson)
 * [Маршрутизация](#Маршрутизация)
-* [Лицензирование и права доступа](#Лицензирование)
+* [Лицензирование и права доступа](#Лицензирование-и-права-доступа)
 * [API](#api)
 * [Примеры](#Примеры)
 * [Ссылки](#Ссылки)
@@ -59,6 +59,7 @@ GET /arm/status?name=test
 
 В [репозитории monitor-plugin-sim](https://github.com/monitor-plugin-sim/monitor-plugin-sim) представлен симулятор подсистемы плагинов монитора, отвечающий за маршрутизацию запросов-ответов между монитором и плагином.
 
+<a class="anchor" name="Лицензирование-и-права-доступа" href="#Лицензирование-и-права-доступа"></a>
 ## **Лицензирование и права доступа**
 
 Каждый плагин должен иметь хотя бы одну лицензию (*см. package.json: required_licenses*). Кроме того, может возникнуть потребность лицензировать какой-либо отдельный функционал плагина.
@@ -122,14 +123,15 @@ app.get('<some_url>', (req, res) => {
 
 ### Методы
 
-[UserInfo](#userinfosession) - метод для получения информации о пользователе<br>
-[UserList](#userlistsession) - метод для получения информации о пользователях<br>
-[CheckAccess](#checkaccessfeatureid-session) - метод для проверки доступа к функционалу<br>
-[PickPermissions](#pickpermissionsfeaturesids-session) - метод для проверки доступа к функционалам<br>
-[KodeksDocInfo](#kodeksdocinfodocnum-session) - метод для получения информации о документе ИС "Кодекс/Техэксперт"<br>
-[KodeksProductStatus](#kodeksproductstatusproductid-session) - метод для получения статуса продукта ИС "Кодекс/Техэксперт"<br>
-[SendMail](#sendmailto-subj-body-cc-attachment) - метод для отправки почтового сообщения<br>
+[UserInfo](#userinfo) - метод для получения информации о пользователе<br>
+[UserList](#userlist) - метод для получения информации о пользователях<br>
+[CheckAccess](#checkaccess) - метод для проверки доступа к функционалу<br>
+[PickPermissions](#pickpermissions) - метод для проверки доступа к функционалам<br>
+[KodeksDocInfo](#kodeksdocinfo) - метод для получения информации о документе ИС "Кодекс/Техэксперт"<br>
+[KodeksProductStatus](#kodeksproductstatus) - метод для получения статуса продукта ИС "Кодекс/Техэксперт"<br>
+[SendMail](#sendmail) - метод для отправки почтового сообщения<br>
 
+<a class="anchor" name="userinfo" href="#userinfo"></a>
 #### **UserInfo(session)**
 
 Возвращает информацию о пользователе.
@@ -166,6 +168,7 @@ global.KServerApi.UserInfo(session)
 ```
 ***
 
+<a class="anchor" name="userlist" href="#userlist"></a>
 #### **UserList(session)**
 
 Возвращает список пользователей.
@@ -200,6 +203,7 @@ global.KServerApi.UserList(session)
 ```
 ***
 
+<a class="anchor" name="checkaccess" href="#checkaccess"></a>
 #### **CheckAccess(featureId, session)**
 
 Проверяет доступ пользователя к указанному функционалу.
@@ -239,6 +243,7 @@ app.get('<some_url>', (req, res, next) => {
 ```
 ***
 
+<a class="anchor" name="pickpermissions" href="#pickpermissions"></a>
 #### **PickPermissions(featuresIds, session)**
 
 Проверяет права доступа пользователя к указанным функционалам, а, так же, если указана версия (см. `featuresIds`) - на лицензию.
@@ -278,6 +283,7 @@ KServerApi.PickPermissions([
 ```
 ***
 
+<a class="anchor" name="kodeksdocinfo" href="#kodeksdocinfo"></a>
 #### **KodeksDocInfo(docNum[, session])**
 
 Возвращает информацию о документе ИС "Кодекс/Техэксперт".
@@ -298,6 +304,7 @@ KServerApi.PickPermissions([
 
 ***
 
+<a class="anchor" name="kodeksproductstatus" href="#kodeksproductstatus"></a>
 #### **KodeksProductStatus(productId[, session])**
 
 * `productId` \<Number\> идентификатор продукта ИС "Кодекс/Техэксперт".
@@ -313,6 +320,7 @@ KServerApi.PickPermissions([
 
 ***
 
+<a class="anchor" name="sendmail" href="#sendmail"></a>
 #### **SendMail(to[, subj, body, cc, attachment])**
 
 Отправляет почтовое сообщение
