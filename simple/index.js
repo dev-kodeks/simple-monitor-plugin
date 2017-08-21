@@ -34,6 +34,22 @@ function finalHandler(req, res) {
 		<pre>${req.pickPermissions ? JSON.stringify(req.pickPermissions, null, kPadding) : 'some problem'}</pre>`);
 
 	res.write('<hr>');
+	res.write(`<h3>Set licensed parameter:</h3>
+		<pre>${req.setLicensedParameter ? JSON.stringify(req.setLicensedParameter, null, kPadding) : 'some problem'}</pre>`);
+
+	res.write('<hr>');
+	res.write(`<h3>Increase licensed parameter:</h3>
+		<pre>${req.incLicensedParameter ? JSON.stringify(req.incLicensedParameter, null, kPadding) : 'some problem'}</pre>`);
+
+	res.write('<hr>');
+	res.write(`<h3>Decrease licensed parameter:</h3>
+		<pre>${req.decLicensedParameter ? JSON.stringify(req.decLicensedParameter, null, kPadding) : 'some problem'}</pre>`);
+
+	res.write('<hr>');
+	res.write(`<h3>Check licensed parameter:</h3>
+		<pre>${req.checkLicensedParameter ? JSON.stringify(req.checkLicensedParameter, null, kPadding) : 'some problem'}</pre>`);
+
+	res.write('<hr>');
 	res.write(`<h3>Kodeks doc info:</h3>
 		<pre>${req.kodeksDocInfo ? JSON.stringify(req.kodeksDocInfo, null, kPadding) : 'some problem'}</pre>`);
 
@@ -98,7 +114,7 @@ const server = http.createServer((req, res) => {
 
 		// CheckAccess
 		.then(() => {
-			return global.KServerApi.CheckAccess(4360, req);
+			return global.KServerApi.CheckAccess(100005, req); // old lic: 4360
 		})
 		.then(access => {
 			try {
@@ -126,6 +142,66 @@ const server = http.createServer((req, res) => {
 		})
 		.catch(error => {
 			req.pickPermissions = error.toString();
+		})
+
+		// SetLicensedParameter
+		.then(() => {
+			return global.KServerApi.SetLicensedParameter(100002, 0, 50, 123456789);
+		})
+		.then(result => {
+			try {
+				req.setLicensedParameter = 'set' + result ? '' : ' with "overuse" status';
+			} catch (err) {
+				req.setLicensedParameter = err.toString();
+			}
+		})
+		.catch(error => {
+			req.setLicensedParameter = error.toString();
+		})
+
+		// IncLicensedParameter (+5)
+		.then(() => {
+			return global.KServerApi.IncLicensedParameter(100002, 0, 5, 123456789);
+		})
+		.then(result => {
+			try {
+				req.incLicensedParameter = result;
+			} catch (err) {
+				req.incLicensedParameter = err.toString();
+			}
+		})
+		.catch(error => {
+			req.incLicensedParameter = error.toString();
+		})
+
+		// IncLicensedParameter (-60)
+		.then(() => {
+			return global.KServerApi.IncLicensedParameter(100002, 0, -60, 123456789);
+		})
+		.then(result => {
+			try {
+				req.decLicensedParameter = result;
+			} catch (err) {
+				req.decLicensedParameter = err.toString();
+			}
+		})
+		.catch(error => {
+			req.decLicensedParameter = error.toString();
+		})
+
+		// CheckLicensedParameter
+		.then(() => {
+			return global.KServerApi.CheckLicensedParameter(100002);
+		})
+		.then(result => {
+			try {
+				req.checkLicensedParameter = result;
+			} catch (err) {
+				req.checkLicensedParameter = err.toString();
+			}
+		})
+		.catch(error => {
+			req.checkLicensedParameter = error.toString();
 		})
 
 		// KodeksDocInfo

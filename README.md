@@ -8,7 +8,7 @@
 * [Примеры](#Примеры)
 * [Ссылки](#Ссылки)
 
-## Описание (актуально для монитора версии 6.4.1.111)
+## Описание (актуально для монитора версии 6.4.1.120)
 
 Плагин должен быть полноценным модулем в формате npm, самостоятельно реализующим свои зависимости от других модулей.
 
@@ -127,6 +127,9 @@ app.get('<some_url>', (req, res) => {
 [UserList](#userlist) - метод для получения информации о пользователях<br>
 [CheckAccess](#checkaccess) - метод для проверки доступа к функционалу<br>
 [PickPermissions](#pickpermissions) - метод для проверки доступа к функционалам<br>
+[SetLicensedParameter](#setlicensedparameter) - метод для работы с лицензируемыми параметрами<br>
+[IncLicensedParameter](#inclicensedparameter) - метод для работы с лицензируемыми параметрами<br>
+[CheckLicensedParameter](#checklicensedparameter) - метод для работы с лицензируемыми параметрами<br>
 [KodeksDocInfo](#kodeksdocinfo) - метод для получения информации о документе ИС "Кодекс/Техэксперт"<br>
 [KodeksProductStatus](#kodeksproductstatus) - метод для получения статуса продукта ИС "Кодекс/Техэксперт"<br>
 [SendMail](#sendmail) - метод для отправки почтового сообщения<br>
@@ -138,7 +141,7 @@ app.get('<some_url>', (req, res) => {
 
 * `session` идентификатор сессии пользователя (см. `pickKServerInfo`) или объект `request` (IncomingMessage)
 * Returns: \<Promise\><br>
-  Обработчику resolve (в случае успеха) передается объект с информацией о пользователе:
+  Обработчику `resolve` (в случае успеха) передается объект с информацией о пользователе:
   ```
   {
     authenticated: <Boolean>, // флаг, аутентифицирован ли пользователь
@@ -154,7 +157,7 @@ app.get('<some_url>', (req, res) => {
     expired: <Boolean> // информация об истечении срока действия учётной записи
   }
   ```
-  Обработчику reject (в случае неудачи) передается объект `Error` c описанием ошибки.
+  Обработчику `reject` (в случае неудачи) передается объект `Error` c описанием ошибки.
 
 Пример:
 ```
@@ -175,7 +178,7 @@ global.KServerApi.UserInfo(session)
 
 * `session` идентификатор сессии пользователя (см. `pickKServerInfo`) или объект `request` (IncomingMessage)
 * Returns: \<Promise\><br>
-  Обработчику resolve (в случае успеха) передается массив объектов с информацией о пользователях (может быть пустым):
+  Обработчику `resolve` (в случае успеха) передается массив объектов с информацией о пользователях (может быть пустым):
   ```
   [{
     id: <id_type>, // идентификатор пользователя в базе сервера
@@ -189,7 +192,7 @@ global.KServerApi.UserInfo(session)
     expired: <Boolean> // информация об истечении срока действия учётной записи
   }, ...]
   ```
-  Обработчику reject (в случае неудачи) передается объект `Error` c описанием ошибки.
+  Обработчику `reject` (в случае неудачи) передается объект `Error` c описанием ошибки.
 
 Пример:
 ```
@@ -204,23 +207,26 @@ global.KServerApi.UserList(session)
 ***
 
 <a class="anchor" name="checkaccess" href="#checkaccess"></a>
-#### **CheckAccess(featureId, session)**
+#### **CheckAccess(featureId, ver, session)**
 
 Проверяет доступ пользователя к указанному функционалу.
 Проверяются права доступа и лицензия (валидна, не превышена и т.п., см. *Лицензирование*).
 Если доступ предоставлен, то лицензия "захватывается" (если лицензия была захвачена ранее, то обновляется период её использования).
 
 * `featureId` \<Number\> идентификатор функционала, который должен быть проверен
+* `ver` <Number> версия функционала (необязательный параметр, по умолчанию `0`).
+    Если в качестве `session` указывается id сессии (`<Number>`), то во избежание
+    неоднозначности параметр должен быть указан явно.
 * `session` идентификатор сессии пользователя (см. *`pickKServerInfo`*) или объект `request` (IncomingMessage)
 * Returns: \<Promise\><br>
-  Обработчику resolve (в случае успеха) передается объект:
+  Обработчику `resolve` (в случае успеха) передается объект:
   ```
   {
     granted: <Bolean>, // флаг: доступ разрешен/запрещён
     reason: <String>   // причина отказа (в случае отказа)
   }
   ```
-  Обработчику reject (в случае неудачи) передается объект `Error` c описанием ошибки.
+  Обработчику `reject` (в случае неудачи) передается объект `Error` c описанием ошибки.
 
 Пример:
 
@@ -253,7 +259,7 @@ app.get('<some_url>', (req, res, next) => {
 которые должны быть проверены.
 * `session` идентификатор сессии пользователя (см. *`pickKServerInfo`*) или объект `request` (IncomingMessage)
 * Returns: \<Promise\><br>
-  Обработчику resolve (в случае успеха) передается массив объектов:
+  Обработчику `resolve` (в случае успеха) передается массив объектов:
   ```
   [{
     feature: <Any>,    // id функционала
@@ -262,7 +268,7 @@ app.get('<some_url>', (req, res, next) => {
     ver: <Number>      // версия (если была в запросе)
   }, ...]
   ```
-  Обработчику reject (в случае неудачи) передается объект `Error` c описанием ошибки.
+  Обработчику `reject` (в случае неудачи) передается объект `Error` c описанием ошибки.
 
 Пример:
 
@@ -283,6 +289,113 @@ KServerApi.PickPermissions([
 ```
 ***
 
+<a class="anchor" name="setlicensedparameter" href="#setlicensedparameter"></a>
+#### **SetLicensedParameter(license, version, value, owner)**
+
+Устанавливает количество используемых лицензий для указанного владельца.
+Если владелец не указан, то он интерпретируется как "анонимный владелец".
+
+* `license` \<Number\> номер лицензии
+* `version` \<Number\> версия
+* `value` \<Number\> количество лицензий
+* `owner` \<String\> идентификатор владельца
+* Returns: \<Promise\><br>
+  Обработчику `resolve` (в случае успеха) передается \<Boolean\>:
+  ```
+  <Bolean>  // true - количество используемых лицензий не превышает максимально допустимое
+            // false - превышает, но значение всё равно устанавливается
+  ```
+  Обработчику `reject` (в случае неудачи) передается объект `Error` c описанием ошибки.
+
+Пример:
+
+```
+//...
+app.get('<some_url>', (req, res, next) => {
+  KServerApi.SetLicensedParameter(100002, 0, 50, 123456789)
+  .then(result => {
+    if (!result)
+      console.log("Licensed parameter was set with 'overuse' status.");
+    next();
+  })
+  .catch(error => {
+    else
+      console.log("Licensed parameter was not been set.")
+  })
+});
+
+```
+***
+
+<a class="anchor" name="inclicensedparameter" href="#inclicensedparameter"></a>
+#### **IncLicensedParameter(license, version, value, owner)**
+
+Изменяет количество используемых лицензий для указанного владельца на значение, указанное в `incVal`.
+Если владелец не указан, то он интерпретируется как "анонимный владелец".
+
+* `license` \<Number\> номер лицензии
+* `version` \<Number\> версия
+* `value` \<Number\> количество лицензий
+* `owner` \<String\> идентификатор владельца
+* Returns: \<Promise\><br>
+  Обработчику `resolve` (в случае успеха) передается `true`.<br>
+  Обработчику `reject` (в случае неудачи) передается объект `Error` c описанием ошибки.
+
+Пример:
+
+```
+//...
+app.get('<some_url>', (req, res, next) => {
+  KServerApi.IncLicensedParameter(100002, 0, 5, 123456789)
+  .then(result => {
+    // `result` is unused (always `true`)
+    next();
+  })
+  .catch(error => {
+    // 'User limit' or another reason
+    accessDenyHandler(req, res, error);
+  })
+});
+
+```
+***
+
+<a class="anchor" name="checklicensedparameter" href="#checklicensedparameter"></a>
+#### **CheckLicensedParameter(license, version)**
+
+Проверяет, не превышает ли количество занятых лицензий максимально допустимое.
+
+* `license` \<Number\> номер лицензии
+* `version` \<Number\> версия
+* Returns: \<Promise\><br>
+  Обработчику `resolve` (в случае успеха) передается \<Boolean\>:
+  ```
+  <Bolean>  // true - не превышает; false - превышает
+  ```
+  Обработчику `reject` (в случае неудачи) передается объект `Error` c описанием ошибки.
+
+Пример:
+
+```
+//...
+app.get('<some_url>', (req, res, next) => {
+  KServerApi.CheckLicensedParameter(100002)
+  .then(result => {
+    if (!result) { // 'User limit'
+      accessDenyHandler(req, res);
+      return;
+    }
+    next();
+  })
+  .catch(error => {
+    // another reason
+    accessDenyHandler(req, res, error);
+  })
+});
+
+```
+***
+
 <a class="anchor" name="kodeksdocinfo" href="#kodeksdocinfo"></a>
 #### **KodeksDocInfo(docNum[, session])**
 
@@ -291,7 +404,7 @@ KServerApi.PickPermissions([
 * `docNum` \<Number\> номер документа в ИС "Кодекс/Техэксперт", информацию о котором требуется получить.
 * `session` идентификатор сессии пользователя (см. `pickKServerInfo`), или объект `request` (IncomingMessage), или `undefined`
 * Returns: \<Promise\><br>
-  Обработчику resolve (в случае успеха) передается объект:
+  Обработчику `resolve` (в случае успеха) передается объект:
   ```
   {
     status: <String>,  // статус документа
@@ -300,7 +413,7 @@ KServerApi.PickPermissions([
   ```
   Свойство `status` может принимать следующие значения:
    *'active', 'inactive', 'card_active', 'card_inactive', 'card_undefined', 'project', 'project inactive', 'situation', 'situation_inactive', 'themes', 'technicalDocument', 'technicalDocumentNew', 'book', 'bookmark', 'imp_news'*<br>
-  Обработчику reject (в случае неудачи) передается объект `Error` c описанием ошибки.
+  Обработчику `reject` (в случае неудачи) передается объект `Error` c описанием ошибки.
 
 ***
 
@@ -310,13 +423,13 @@ KServerApi.PickPermissions([
 * `productId` \<Number\> идентификатор продукта ИС "Кодекс/Техэксперт".
 * `session` идентификатор сессии пользователя (см. `pickKServerInfo`), или объект `request` (IncomingMessage), или `undefined`
 * Returns: \<Promise\><br>
-  Обработчику resolve (в случае успеха) передается объект:
+  Обработчику `resolve` (в случае успеха) передается объект:
   ```
   {
     plugged: <Bolean>  // флаг: продукт подключен/не подключен
   }
   ```
-  Обработчику reject (в случае неудачи) передается объект `Error` c описанием ошибки.
+  Обработчику `reject` (в случае неудачи) передается объект `Error` c описанием ошибки.
 
 ***
 
@@ -331,11 +444,11 @@ KServerApi.PickPermissions([
 * `cc` \<String\> адрес(а) получателя(ей) копии или `undefined`
 * `attachment` \<Array\> массив путей (String) прикрепляемых файлов или `undefined`
 * Returns: \<Promise\><br>
-  Обработчику resolve (в случае успеха) передается значение:
+  Обработчику `resolve` (в случае успеха) передается значение:
   ```
   <Bolean>  // статус завершения операции отправки письма
   ```
-  Обработчику reject (в случае неудачи) передается объект `Error` c описанием ошибки.
+  Обработчику `reject` (в случае неудачи) передается объект `Error` c описанием ошибки.
 
 
 

@@ -78,6 +78,74 @@ app.use(function (req, res, next) {
 	});
 });
 
+// SetLicensedParameter
+app.use(function (req, res, next) {
+	global.KServerApi.SetLicensedParameter(100002, 0, 50, 123456789)
+	.then(result => {
+		try {
+			req.setLicensedParameter = 'set' + result ? '' : ' with "overuse" status';
+		} catch (err) {
+			req.setLicensedParameter = err.toString();
+		}
+		return next();
+	})
+	.catch(error => {
+		req.setLicensedParameter = error.toString();
+		return next();
+	});
+});
+
+// IncLicensedParameter (+5)
+app.use(function (req, res, next) {
+	global.KServerApi.IncLicensedParameter(100002, 0, 5, 123456789)
+	.then(result => {
+		try {
+			req.incLicensedParameter = result;
+		} catch (err) {
+			req.incLicensedParameter = err.toString();
+		}
+		return next();
+	})
+	.catch(error => {
+		req.incLicensedParameter = error.toString();
+		return next();
+	});
+});
+
+// IncLicensedParameter (-15)
+app.use(function (req, res, next) {
+	global.KServerApi.IncLicensedParameter(100002, 0, -15, 123456789)
+	.then(result => {
+		try {
+			req.decLicensedParameter = result;
+		} catch (err) {
+			req.decLicensedParameter = err.toString();
+		}
+		return next();
+	})
+	.catch(error => {
+		req.decLicensedParameter = error.toString();
+		return next();
+	});
+});
+
+// CheckLicensedParameter
+app.use(function (req, res, next) {
+	global.KServerApi.CheckLicensedParameter(100002)
+	.then(result => {
+		try {
+			req.checkLicensedParameter = result;
+		} catch (err) {
+			req.checkLicensedParameter = err.toString();
+		}
+		return next();
+	})
+	.catch(error => {
+		req.checkLicensedParameter = error.toString();
+		return next();
+	});
+});
+
 // KodeksDocInfo
 app.use(function (req, res, next) {
 	global.KServerApi.KodeksDocInfo(9027690, req)
@@ -181,6 +249,22 @@ app.all('*', function (req, res) {
 	str += '<hr>';
 	str += `<h3>Pick permissions:</h3>
 		<pre>${req.checkAccess ? JSON.stringify(req.pickPermissions, null, kPadding) : 'some problem'}</pre>`;
+
+	str += '<hr>';
+	str += `<h3>Set licensed parameter:</h3>
+		<pre>${req.setLicensedParameter ? JSON.stringify(req.setLicensedParameter, null, kPadding) : 'some problem'}</pre>`;
+
+	str += '<hr>';
+	str += `<h3>Increase licensed parameter:</h3>
+		<pre>${req.incLicensedParameter ? JSON.stringify(req.incLicensedParameter, null, kPadding) : 'some problem'}</pre>`;
+
+	str += '<hr>';
+	str += `<h3>Decrease licensed parameter:</h3>
+		<pre>${req.decLicensedParameter ? JSON.stringify(req.decLicensedParameter, null, kPadding) : 'some problem'}</pre>`;
+
+	str += '<hr>';
+	str += `<h3>Check licensed parameter:</h3>
+		<pre>${req.checkLicensedParameter ? JSON.stringify(req.checkLicensedParameter, null, kPadding) : 'some problem'}</pre>`;
 
 	str += '<hr>';
 	str += `<h3>Kodeks doc info:</h3>
