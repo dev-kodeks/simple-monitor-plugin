@@ -50,6 +50,10 @@ function finalHandler(req, res) {
 		<pre>${req.checkLicensedParameter ? JSON.stringify(req.checkLicensedParameter, null, kPadding) : 'some problem'}</pre>`);
 
 	res.write('<hr>');
+	res.write(`<h3>Validate license:</h3>
+		<pre>${req.validateLicense ? JSON.stringify(req.validateLicense, null, kPadding) : 'some problem'}</pre>`);
+
+	res.write('<hr>');
 	res.write(`<h3>Kodeks doc info:</h3>
 		<pre>${req.kodeksDocInfo ? JSON.stringify(req.kodeksDocInfo, null, kPadding) : 'some problem'}</pre>`);
 
@@ -202,6 +206,21 @@ const server = http.createServer((req, res) => {
 		})
 		.catch(error => {
 			req.checkLicensedParameter = error.toString();
+		})
+
+		// ValidateLicense
+		.then(() => {
+			return global.KServerApi.ValidateLicense(100002);
+		})
+		.then(result => {
+			try {
+				req.validateLicense = result;
+			} catch (err) {
+				req.validateLicense = err.toString();
+			}
+		})
+		.catch(error => {
+			req.validateLicense = error.toString();
 		})
 
 		// KodeksDocInfo

@@ -146,6 +146,23 @@ app.use(function (req, res, next) {
 	});
 });
 
+// ValidateLicense
+app.use(function (req, res, next) {
+	global.KServerApi.ValidateLicense(100002)
+	.then(result => {
+		try {
+			req.validateLicense = result;
+		} catch (err) {
+			req.validateLicense = err.toString();
+		}
+		return next();
+	})
+	.catch(error => {
+		req.validateLicense = error.toString();
+		return next();
+	});
+});
+
 // KodeksDocInfo
 app.use(function (req, res, next) {
 	global.KServerApi.KodeksDocInfo(9027690, req)
@@ -265,6 +282,10 @@ app.all('*', function (req, res) {
 	str += '<hr>';
 	str += `<h3>Check licensed parameter:</h3>
 		<pre>${req.checkLicensedParameter ? JSON.stringify(req.checkLicensedParameter, null, kPadding) : 'some problem'}</pre>`;
+
+	str += '<hr>';
+	str += `<h3>Validate license:</h3>
+		<pre>${req.validateLicense ? JSON.stringify(req.validateLicense, null, kPadding) : 'some problem'}</pre>`;
 
 	str += '<hr>';
 	str += `<h3>Kodeks doc info:</h3>

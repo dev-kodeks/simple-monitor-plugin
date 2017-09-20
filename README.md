@@ -130,6 +130,7 @@ app.get('<some_url>', (req, res) => {
 [SetLicensedParameter](#setlicensedparameter) - метод для работы с лицензируемыми параметрами<br>
 [IncLicensedParameter](#inclicensedparameter) - метод для работы с лицензируемыми параметрами<br>
 [CheckLicensedParameter](#checklicensedparameter) - метод для работы с лицензируемыми параметрами<br>
+[ValidateLicense](#validatelicense) - метод для проверки лицензии (наличие, время действия и т.д.)<br>
 [KodeksDocInfo](#kodeksdocinfo) - метод для получения информации о документе ИС "Кодекс/Техэксперт"<br>
 [KodeksProductStatus](#kodeksproductstatus) - метод для получения статуса продукта ИС "Кодекс/Техэксперт"<br>
 [SendMail](#sendmail) - метод для отправки почтового сообщения<br>
@@ -390,6 +391,42 @@ app.get('<some_url>', (req, res, next) => {
   .catch(error => {
     // another reason
     accessDenyHandler(req, res, error);
+  })
+});
+
+```
+***
+
+<a class="anchor" name="validatelicense" href="#validatelicense"></a>
+#### **ValidateLicense(license, version)**
+
+Проверяет валидность лицензии (наличие, время действия и т.д.).
+
+* `license` \<Number\> номер лицензии
+* `version` \<Number\> версия
+* Returns: \<Promise\><br>
+  Обработчику `resolve` (в случае успеха) передается \<Boolean\>:
+  ```
+  <Bolean>  // true - лицензия действующая; false - не действующая или отстутствует
+  ```
+  Обработчику `reject` (в случае неудачи) передается объект `Error` c описанием ошибки.
+
+Пример:
+
+```
+//...
+app.get('<some_url>', (req, res, next) => {
+  KServerApi.ValidateLicense(100002)
+  .then(result => {
+    if (!result) { // license not valid
+      denyHandler(req, res);
+      return;
+    }
+    next();
+  })
+  .catch(error => {
+    // another reason
+    denyHandler(req, res, error);
   })
 });
 
