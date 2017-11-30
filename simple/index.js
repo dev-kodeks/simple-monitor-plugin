@@ -68,6 +68,10 @@ function finalHandler(req, res) {
 	}
 
 	res.write('<hr>');
+	res.write(`<h3>Kodeks server info:</h3>
+		<pre>${req.serverInfo ? JSON.stringify(req.serverInfo, null, kPadding) : 'some problem'}</pre>`);
+
+	res.write('<hr>');
 	res.write(`<h3>Non existing API method:</h3>
 		<pre>${req.nonExistingAPIMethod ? JSON.stringify(req.nonExistingAPIMethod, null, kPadding) : 'some problem'}</pre>`);
 
@@ -87,217 +91,235 @@ const server = http.createServer((req, res) => {
 
 	let body = [];
 	req.on('data', chunk => body.push(chunk))
-	.on('end', () => {
-		if (body) req.body = Buffer.concat(body).toString();
+		.on('end', () => {
+			if (req.url.endsWith('exit')) return process.exit();
+			else if (req.url.endsWith('abort')) return process.abort();
 
-		// UserInfo 
-		global.KServerApi.UserInfo(req)
-		.then(userInfo => {
-			try {
-				req.userInfo = JSON.parse(userInfo);
-			} catch (err) {
-				req.userInfo = err.toString();
-			}
-		})
-		.catch(error => {
-			req.userInfo = error.toString();
-		})
+			if (body) req.body = Buffer.concat(body).toString();
 
-		// UserList 
-		global.KServerApi.UserList()
-		.then(userList => {
-			try {
-				req.userList = JSON.parse(userList);
-			} catch (err) {
-				req.userList = err.toString();
-			}
-		})
-		.catch(error => {
-			req.userInfo = error.toString();
-		})
+			// UserInfo 
+			global.KServerApi.UserInfo(req)
+				.then(userInfo => {
+					try {
+						req.userInfo = JSON.parse(userInfo);
+					} catch (err) {
+						req.userInfo = err.toString();
+					}
+				})
+				.catch(error => {
+					req.userInfo = error.toString();
+				});
 
-		// CheckAccess
-		.then(() => {
-			return global.KServerApi.CheckAccess(100005, req); // old lic: 4360
-		})
-		.then(access => {
-			try {
-				req.checkAccess = JSON.parse(access);
-			} catch (err) {
-				req.checkAccess = err.toString();
-			}
-		})
-		.catch(error => {
-			req.checkAccess = error.toString();
-		})
+			// UserList 
+			global.KServerApi.UserList()
+			.then(userList => {
+				try {
+					req.userList = JSON.parse(userList);
+				} catch (err) {
+					req.userList = err.toString();
+				}
+			})
+			.catch(error => {
+				req.userInfo = error.toString();
+			})
 
-		// PickPermissions
-		.then(() => {
-			return global.KServerApi.PickPermissions([
-				[555100000, 0], ['555100000', '1'], 555100001, '555100002'
-			], req);
-		})
-		.then(access => {
-			try {
-				req.pickPermissions = JSON.parse(access);
-			} catch (err) {
-				req.pickPermissions = err.toString();
-			}
-		})
-		.catch(error => {
-			req.pickPermissions = error.toString();
-		})
+			// CheckAccess
+			.then(() => {
+				return global.KServerApi.CheckAccess(100005, req); // old lic: 4360
+			})
+			.then(access => {
+				try {
+					req.checkAccess = JSON.parse(access);
+				} catch (err) {
+					req.checkAccess = err.toString();
+				}
+			})
+			.catch(error => {
+				req.checkAccess = error.toString();
+			})
 
-		// SetLicensedParameter
-		.then(() => {
-			return global.KServerApi.SetLicensedParameter(100002, 0, 50, 123456789);
-		})
-		.then(result => {
-			try {
-				req.setLicensedParameter = 'set' + result ? '' : ' with "overuse" status';
-			} catch (err) {
-				req.setLicensedParameter = err.toString();
-			}
-		})
-		.catch(error => {
-			req.setLicensedParameter = error.toString();
-		})
+			// PickPermissions
+			.then(() => {
+				return global.KServerApi.PickPermissions([
+					[555100000, 0], ['555100000', '1'], 555100001, '555100002'
+				], req);
+			})
+			.then(access => {
+				try {
+					req.pickPermissions = JSON.parse(access);
+				} catch (err) {
+					req.pickPermissions = err.toString();
+				}
+			})
+			.catch(error => {
+				req.pickPermissions = error.toString();
+			})
 
-		// IncLicensedParameter (+5)
-		.then(() => {
-			return global.KServerApi.IncLicensedParameter(100002, 0, 5, 123456789);
-		})
-		.then(result => {
-			try {
-				req.incLicensedParameter = result;
-			} catch (err) {
-				req.incLicensedParameter = err.toString();
-			}
-		})
-		.catch(error => {
-			req.incLicensedParameter = error.toString();
-		})
+			// SetLicensedParameter
+			.then(() => {
+				return global.KServerApi.SetLicensedParameter(100002, 0, 50, 123456789);
+			})
+			.then(result => {
+				try {
+					req.setLicensedParameter = 'set' + result ? '' : ' with "overuse" status';
+				} catch (err) {
+					req.setLicensedParameter = err.toString();
+				}
+			})
+			.catch(error => {
+				req.setLicensedParameter = error.toString();
+			})
 
-		// IncLicensedParameter (-60)
-		.then(() => {
-			return global.KServerApi.IncLicensedParameter(100002, 0, -60, 123456789);
-		})
-		.then(result => {
-			try {
-				req.decLicensedParameter = result;
-			} catch (err) {
-				req.decLicensedParameter = err.toString();
-			}
-		})
-		.catch(error => {
-			req.decLicensedParameter = error.toString();
-		})
+			// IncLicensedParameter (+5)
+			.then(() => {
+				return global.KServerApi.IncLicensedParameter(100002, 0, 5, 123456789);
+			})
+			.then(result => {
+				try {
+					req.incLicensedParameter = result;
+				} catch (err) {
+					req.incLicensedParameter = err.toString();
+				}
+			})
+			.catch(error => {
+				req.incLicensedParameter = error.toString();
+			})
 
-		// CheckLicensedParameter
-		.then(() => {
-			return global.KServerApi.CheckLicensedParameter(100002);
-		})
-		.then(result => {
-			try {
-				req.checkLicensedParameter = result;
-			} catch (err) {
-				req.checkLicensedParameter = err.toString();
-			}
-		})
-		.catch(error => {
-			req.checkLicensedParameter = error.toString();
-		})
+			// IncLicensedParameter (-60)
+			.then(() => {
+				return global.KServerApi.IncLicensedParameter(100002, 0, -60, 123456789);
+			})
+			.then(result => {
+				try {
+					req.decLicensedParameter = result;
+				} catch (err) {
+					req.decLicensedParameter = err.toString();
+				}
+			})
+			.catch(error => {
+				req.decLicensedParameter = error.toString();
+			})
 
-		// ValidateLicense
-		.then(() => {
-			return global.KServerApi.ValidateLicense(100002);
-		})
-		.then(result => {
-			try {
-				req.validateLicense = result;
-			} catch (err) {
-				req.validateLicense = err.toString();
-			}
-		})
-		.catch(error => {
-			req.validateLicense = error.toString();
-		})
+			// CheckLicensedParameter
+			.then(() => {
+				return global.KServerApi.CheckLicensedParameter(100002);
+			})
+			.then(result => {
+				try {
+					req.checkLicensedParameter = result;
+				} catch (err) {
+					req.checkLicensedParameter = err.toString();
+				}
+			})
+			.catch(error => {
+				req.checkLicensedParameter = error.toString();
+			})
 
-		// KodeksDocInfo
-		.then(() => {
-			return global.KServerApi.KodeksDocInfo(9027690, req);
-		})
-		.then(access => {
-			try {
-				req.kodeksDocInfo = JSON.parse(access);
-			} catch (err) {
-				req.kodeksDocInfo = { error: err.toString() };
-			}
-		})
-		.catch(error => {
-			req.kodeksDocInfo = error.toString();
-		})
+			// ValidateLicense
+			.then(() => {
+				return global.KServerApi.ValidateLicense(100002);
+			})
+			.then(result => {
+				try {
+					req.validateLicense = result;
+				} catch (err) {
+					req.validateLicense = err.toString();
+				}
+			})
+			.catch(error => {
+				req.validateLicense = error.toString();
+			})
 
-		// KodeksProductStatus
-		.then(() => {
-			return global.KServerApi.KodeksProductStatus(10913, req);
-		})
-		.then(status => {
-			try {
-				req.kodeksProductStatus = JSON.parse(status);
-			} catch (err) {
-				req.kodeksProductStatus = err.toString();
-			}
-		})
-		.catch(error => {
-			req.kodeksProductStatus = error.toString();
-		})
+			// KodeksDocInfo
+			.then(() => {
+				return global.KServerApi.KodeksDocInfo(9027690, req);
+			})
+			.then(access => {
+				try {
+					req.kodeksDocInfo = JSON.parse(access);
+				} catch (err) {
+					req.kodeksDocInfo = { error: err.toString() };
+				}
+			})
+			.catch(error => {
+				req.kodeksDocInfo = error.toString();
+			})
 
-		// SendMail
-		/* uncomment this block to enable the test *//*
-		.then(() => {
-			sendMailEnabled = true;
-			return global.KServerApi.SendMail(
-				'garry@kodeks.ru' // to
-				, 'тестовое письмо (plugins API)' // subj
-				, `Тестовое письмо:\n  plugin: ${global.KServerApi.Name} on ${server.address()}` // body
-				//, '' // cc
-				//, [] // attachment
-			);
-		})
-		.then(result => {
-			try {
-				req.sendMail = result;
-			} catch (err) {
-				req.sendMail = err.toString();
-			}
-		})
-		.catch(error => {
-			req.sendMail = error.toString();
-		})
-		/**///*
+			// KodeksProductStatus
+			.then(() => {
+				return global.KServerApi.KodeksProductStatus(10913, req);
+			})
+			.then(status => {
+				try {
+					req.kodeksProductStatus = JSON.parse(status);
+				} catch (err) {
+					req.kodeksProductStatus = err.toString();
+				}
+			})
+			.catch(error => {
+				req.kodeksProductStatus = error.toString();
+			})
 
-		// NonExistingAPIMethod
-		.then(() => {
-			return global.KServerApi.NonExistingAPIMethod();
-		})
-		.then(access => {
-			try {
-				req.nonExistingAPIMethod = JSON.parse(access);
-			} catch (err) {
-				req.nonExistingAPIMethod = err.toString();
-			}
-		})
-		.catch(error => {
-			req.nonExistingAPIMethod = error.toString();
-		})
+			// SendMail
+			/* uncomment this block to enable the test *//*
+			.then(() => {
+				sendMailEnabled = true;
+				return global.KServerApi.SendMail(
+					'garry@kodeks.ru' // to
+					, 'тестовое письмо (plugins API)' // subj
+					, `Тестовое письмо:\n  plugin: ${global.KServerApi.Name} on ${server.address()}` // body
+					//, '' // cc
+					//, [] // attachment
+				);
+			})
+			.then(result => {
+				try {
+					req.sendMail = result;
+				} catch (err) {
+					req.sendMail = err.toString();
+				}
+			})
+			.catch(error => {
+				req.sendMail = error.toString();
+			})
+			/**///*
+			
+			// GetServerInfo
+			.then(() => {
+				return global.KServerApi.GetServerInfo();
+			})
+			.then(info => {
+				try {
+					req.serverInfo = info;
+				} catch (err) {
+					req.serverInfo = err.toString();
+				}
+			})
+			.catch(error => {
+				req.serverInfo = error.toString();
+			})
 
-		// final
-		.then(() => {
-			return finalHandler(req, res);
-		});
-	})
-	.on('error', e => console.error(`request error: ${e.toString()}`));
+			// NonExistingAPIMethod
+			.then(() => {
+				return global.KServerApi.NonExistingAPIMethod();
+			})
+			.then(access => {
+				try {
+					req.nonExistingAPIMethod = JSON.parse(access);
+				} catch (err) {
+					req.nonExistingAPIMethod = err.toString();
+				}
+			})
+			.catch(error => {
+				req.nonExistingAPIMethod = error.toString();
+			})
+
+			// final
+			.then(() => {
+				return finalHandler(req, res);
+			});
+		})
+		.on('error', e => console.error(`request error: ${e.toString()}`));
 })
 .on('error', e => console.error(`plugin ${global.KServerApi.Name} error: ${e.toString()}`));
 

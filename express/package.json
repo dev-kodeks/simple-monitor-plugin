@@ -16,7 +16,7 @@
   "author": "apopov",
   "license": "ISC",
   "bugs": "popov@kodeks.ru",
-  "contributors": "Murzilka",
+  "contributors": ["Murzilka", "dev-kodeks"],
   "repository": "https://github.com/Murzilka/simple-monitor-plugin",
   "recommendations": "",
   "homepage": "https://github.com/Murzilka/simple-monitor-plugin",
