@@ -238,7 +238,7 @@ global.KServerApi.UserInfo(session)
   ```javascript
   [{
     id: <id_type>, // идентификатор пользователя в базе сервера
-    login: <String>`, // логин
+    login: <String>, // логин
     groups: <Array>, // массив объектов вида {id: <id_type>, name: <String>}, содержащих идентификаторы и названиям групп, в которые пользователь входит
     name: <String>, // имя пользователя
     email: <String>,
