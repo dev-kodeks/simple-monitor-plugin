@@ -141,7 +141,7 @@ const server = http.createServer((req, res) => {
 			// PickPermissions
 			.then(() => {
 				return global.KServerApi.PickPermissions([
-					[555100000, 0], ['555100000', '1'], 555100001, '555100002'
+					[555100000, 0], ['555100000', '1'], 555100001, '555100002', 333101000, 333101101, [333101102], 333101103, 333101105
 				], req);
 			})
 			.then(access => {
@@ -326,3 +326,13 @@ const server = http.createServer((req, res) => {
 server.listen(global.KServerApi.SocketPath, function () {
 	console.log(`plugin ${global.KServerApi.Name} opened server on ${server.address()}`);
 });
+
+global.onShutdown = () => {
+	console.log(`custom 'onShutdown' called`);
+	return new Promise((resolve, reject) => {
+		server.close(err => {
+			console.log(`custom 'onShutdown' complete`);
+			err ? rejest(err) : resolve();
+		});
+	});
+};
