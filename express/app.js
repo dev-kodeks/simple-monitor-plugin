@@ -1,22 +1,53 @@
 'use strict';
 
 const http = require('http')
+	, https = require('https')
 	, url = require('url')
+	, util = require('util')
 	, express = require('express')
 	, app = express()
 	;
 
 let sendMailEnabled = false;
 
+let httpModule = http;
+let srvrProtocol = '';
+let srvrPort = '';
+global.KServerApi.GetServerInfo()
+.then(info => {
+	let defport = 80;
+	srvrProtocol = info.Protocol || 'http';
+	if (srvrProtocol == 'https') {
+		httpModule = https;
+		defport = 443;
+	}
+	srvrPort = !info.Port ? defport : info.Port;
+	srvrProtocol = `${srvrProtocol}://`;
+});
+
+app.get(`/${global.KServerApi.Route}/loopback-test`, function (req, res, next) {
+	console.log('/loopback-test request');
+	res.end(`request on '${req.protocol}://${req.headers.host}${req.originalUrl}': ok`);
+});
+
+// GetServerInfo
+app.use(function (req, res, next) {
+	global.KServerApi.GetServerInfo()
+	.then(info => {
+		req.serverInfo = info;
+		return next();
+	})
+	.catch(error => {
+		req.serverInfo = error.message;
+		return next();
+	});
+});
+
 // UserInfo
 app.use(function (req, res, next) {
 	global.KServerApi.UserInfo(req)
 	.then(userInfo => {
-		try {
-			req.userInfo = JSON.parse(userInfo);
-		} catch (err) {
-			req.userInfo = err.toString();
-		}
+		req.userInfo = userInfo;
 		return next();
 	})
 	.catch(error => {
@@ -29,11 +60,7 @@ app.use(function (req, res, next) {
 app.use(function (req, res, next) {
 	global.KServerApi.UserList(req)
 	.then(userList => {
-		try {
-			req.userList = JSON.parse(userList);
-		} catch (err) {
-			req.userList = err.toString();
-		}
+			req.userList = userList;
 		return next();
 	})
 	.catch(error => {
@@ -46,11 +73,7 @@ app.use(function (req, res, next) {
 app.use(function (req, res, next) {
 	global.KServerApi.CheckAccess(100005, req)
 	.then(access => {
-		try {
-			req.checkAccess = JSON.parse(access);
-		} catch (err) {
-			req.checkAccess = err.toString();
-		}
+		req.checkAccess = access;
 		return next();
 	})
 	.catch(error => {
@@ -65,11 +88,7 @@ app.use(function (req, res, next) {
 			[555100000, 0], ['555100000', '1'], 555100001, '555100002'
 		],	req)
 	.then(access => {
-		try {
-			req.pickPermissions = JSON.parse(access);
-		} catch (err) {
-			req.pickPermissions = err.toString();
-		}
+		req.pickPermissions = access;
 		return next();
 	})
 	.catch(error => {
@@ -82,11 +101,7 @@ app.use(function (req, res, next) {
 app.use(function (req, res, next) {
 	global.KServerApi.SetLicensedParameter(100002, 0, 50, 123456789)
 	.then(result => {
-		try {
-			req.setLicensedParameter = 'set' + result ? '' : ' with "overuse" status';
-		} catch (err) {
-			req.setLicensedParameter = err.toString();
-		}
+		req.setLicensedParameter = 'set' + result ? '' : ' with "overuse" status';
 		return next();
 	})
 	.catch(error => {
@@ -99,11 +114,7 @@ app.use(function (req, res, next) {
 app.use(function (req, res, next) {
 	global.KServerApi.IncLicensedParameter(100002, 0, 5, 123456789)
 	.then(result => {
-		try {
-			req.incLicensedParameter = result;
-		} catch (err) {
-			req.incLicensedParameter = err.toString();
-		}
+		req.incLicensedParameter = result;
 		return next();
 	})
 	.catch(error => {
@@ -116,11 +127,7 @@ app.use(function (req, res, next) {
 app.use(function (req, res, next) {
 	global.KServerApi.IncLicensedParameter(100002, 0, -15, 123456789)
 	.then(result => {
-		try {
-			req.decLicensedParameter = result;
-		} catch (err) {
-			req.decLicensedParameter = err.toString();
-		}
+		req.decLicensedParameter = result;
 		return next();
 	})
 	.catch(error => {
@@ -133,11 +140,7 @@ app.use(function (req, res, next) {
 app.use(function (req, res, next) {
 	global.KServerApi.CheckLicensedParameter(100002)
 	.then(result => {
-		try {
-			req.checkLicensedParameter = result;
-		} catch (err) {
-			req.checkLicensedParameter = err.toString();
-		}
+		req.checkLicensedParameter = result;
 		return next();
 	})
 	.catch(error => {
@@ -150,11 +153,7 @@ app.use(function (req, res, next) {
 app.use(function (req, res, next) {
 	global.KServerApi.ValidateLicense(100002)
 	.then(result => {
-		try {
-			req.validateLicense = result;
-		} catch (err) {
-			req.validateLicense = err.toString();
-		}
+		req.validateLicense = result;
 		return next();
 	})
 	.catch(error => {
@@ -167,11 +166,7 @@ app.use(function (req, res, next) {
 app.use(function (req, res, next) {
 	global.KServerApi.KodeksDocInfo(9027690, req)
 	.then(docInfo => {
-		try {
-			req.kodeksDocInfo = JSON.parse(docInfo);
-		} catch (err) {
-			req.kodeksDocInfo = err.toString();
-		}
+		req.kodeksDocInfo = docInfo;
 		return next();
 	})
 	.catch(error => {
@@ -184,15 +179,24 @@ app.use(function (req, res, next) {
 app.use(function (req, res, next) {
 	global.KServerApi.KodeksProductStatus(10913, req)
 	.then(productStatus => {
-		try {
-			req.kodeksProductStatus = JSON.parse(productStatus);
-		} catch (err) {
-			req.kodeksProductStatus = err.toString();
-		}
+		req.kodeksProductStatus = productStatus;
 		return next();
 	})
 	.catch(error => {
 		req.kodeksProductStatus = error.toString();
+		return next();
+	});
+});
+
+// GetServiceName
+app.use(function (req, res, next) {
+	global.KServerApi.GetServiceName("333101000")
+	.then(serviceName => {
+		req.kodeksServiceName = serviceName;
+		return next();
+	})
+	.catch(error => {
+		req.kodeksServiceName = error.message;
 		return next();
 	});
 });
@@ -209,11 +213,7 @@ app.use(function (req, res, next) {
 		//, [] // attachment
 	)
 	.then(result => {
-		try {
-			req.sendMail = result;
-		} catch (err) {
-			req.sendMail = err.toString();
-		}
+		req.sendMail = result;
 		return next();
 	})
 	.catch(error => {
@@ -223,21 +223,71 @@ app.use(function (req, res, next) {
 });
 /**///*
 
-// NonExistingAPIMethod
+// NonexistentAPIMethod
 app.use(function (req, res, next) {
-	global.KServerApi.NonExistingAPIMethod()
-	.then(nonExistingAPIMethod => {
-		try {
-			req.nonExistingAPIMethod = JSON.parse(nonExistingAPIMethod);
-		} catch (err) {
-			req.nonExistingAPIMethod = err.toString();
-		}
+	global.KServerApi.NonexistentAPIMethod()
+	.then(result => {
+		req.nonexistentAPIMethod = result;
 		return next();
 	})
 	.catch(error => {
 		req.nonExistingAPIMethod = error.toString();
 		return next();
 	});
+});
+
+// Loopback (over IPv6)
+app.use(function (req, res, next) {
+	httpModule.get({
+		host: `[::1]`,
+		port: srvrPort,
+		path: `/${global.KServerApi.Route}/loopback-test`,
+		headers: {
+			cookie: req.headers.cookie
+		}		
+	}, answer => {
+		const data = [];
+		answer.on('data', chunk => {
+			console.log(`/loopback-test (IPv6) answer chunk: ${chunk}`);
+			data.push(chunk);
+		});
+		answer.on('end', () => {
+			console.log(`/loopback-test (IPv6) answer end`);
+			req.loopbackTest_ipv6 = data.join('');
+			next();
+		});
+	})
+	.on('error', err => {
+		req.loopbackTest_ipv6 = `failed: ${err}`;
+		next();
+	});
+});
+
+// Loopback (over IPv4)
+app.use(function (req, res, next) {
+	httpModule.get({
+		host: `127.0.0.1`,
+		port: srvrPort,
+		path: `/${global.KServerApi.Route}/loopback-test`,
+		headers: {
+			cookie: req.headers.cookie
+		}		
+	}, answer => {
+		const data = [];
+		answer.on('data', chunk => {
+			console.log(`/loopback-test (PIv4) answer chunk: ${chunk}`);
+			data.push(chunk);
+		});
+		answer.on('end', () => {
+			console.log(`/loopback-test (PIv4) answer end`);
+			req.loopbackTest_ipv4 = data.join('');
+			next();
+		});
+	})
+	.on('error', err => {
+		req.loopbackTest_ipv4 = `failed: ${err}`;
+		next();
+	});;
 });
 
 const kPadding = 4;
@@ -250,6 +300,14 @@ app.all('*', function (req, res) {
 
 	str += `<h1>Plugin ${global.KServerApi.Name}</h1>`;
 	str += `<h2>${req.method} ${url.format(req.url)}</h2>`;
+
+	str += '<hr>';
+	str += `<h3>Server info:</h3>
+		<pre>${req.serverInfo ? JSON.stringify(req.serverInfo, null, kPadding) : 'some problem'}</pre>`;
+
+	str += '<hr>';
+	str += `<h3>Service name:</h3>
+		<pre>${req.kodeksServiceName ? JSON.stringify(req.kodeksServiceName, null, kPadding) : 'some problem'}</pre>`;
 
 	str += '<hr>';
 	str += `<h3>User info:</h3>
@@ -302,8 +360,16 @@ app.all('*', function (req, res) {
 	}
 
 	str += '<hr>';
-	str += `<h3>Non existing API method:</h3>
-		<pre>${req.nonExistingAPIMethod ? JSON.stringify(req.nonExistingAPIMethod, null, kPadding) : 'some problem'}</pre>`;
+	str += `<h3>Nonexistent API method:</h3>
+		<pre>${req.nonexistentAPIMethod ? JSON.stringify(req.nonexistentAPIMethod, null, kPadding) : 'some problem'}</pre>`;
+
+	str += '<hr>';
+	str += `<h3>Loopback test (IPv6):</h3>
+		<pre>${req.loopbackTest_ipv6 ? JSON.stringify(req.loopbackTest_ipv6, null, kPadding) : 'some problem'}</pre>`;
+
+	str += '<hr>';
+	str += `<h3>Loopback test (IPv4):</h3>
+		<pre>${req.loopbackTest_ipv4 ?  JSON.stringify(req.loopbackTest_ipv4, null, kPadding) : 'some problem'}</pre>`;
 
 	str += '<hr>';
 	str += `<h3>Request headers:</h3><pre>${JSON.stringify(req.headers, null, kPadding)}</pre>`;
